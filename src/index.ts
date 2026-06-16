@@ -68,7 +68,7 @@ const info = <const>{
     /** If true, the trial ends automatically as soon as the video finishes playing. */
     trial_ends_after_video: {
       type: ParameterType.BOOL,
-      default: false,
+      default: true,
     },
     /** The maximum time, in milliseconds, to wait for a response before ending the trial. If null, there is no deadline. */
     trial_duration: {
@@ -113,7 +113,7 @@ const info = <const>{
     /** If true, blocks submission of an empty or whitespace-only response. */
     required: {
       type: ParameterType.BOOL,
-      default: false,
+      default: true,
     },
     /** If false, number characters (0-9) are stripped/blocked from the response box. */
     allow_numbers: {
@@ -168,6 +168,11 @@ const info = <const>{
     /** Time, in milliseconds, from when each response window became enabled (i.e. the relevant pause) until that response was submitted. Isolates "thinking/typing" time from time spent watching the video. Same length and order as `response`. */
     response_rt: {
       type: ParameterType.INT,
+      array: true,
+    },
+    /** The video's playback position (in seconds, matching `video.currentTime`) at the moment each response was submitted. In gated mode the video is still paused at this point, so this directly tells you which part of the video each response refers to. Same length and order as `response`. */
+    response_video_time: {
+      type: ParameterType.FLOAT,
       array: true,
     },
     /** The video file(s) that were displayed during the trial. */
@@ -271,6 +276,7 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
     // null if a response is somehow submitted with no open window (shouldn't normally happen,
     // since the submit button is disabled whenever response_window_start is null)
     const response_rts: (number | null)[] = [];
+    const response_video_times: number[] = [];
     // performance.now() timestamp marking when the currently-open response window started
     // (null when the response box is closed/disabled).
     let response_window_start: number | null = null;
@@ -512,6 +518,7 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
       response_rts.push(
         response_window_start !== null ? Math.round(now - response_window_start) : null
       );
+      response_video_times.push(videoElement.currentTime);
       textbox.value = "";
 
       if (historyList) {
@@ -631,6 +638,7 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
         response: responses,
         rt: rts,
         response_rt: response_rts,
+        response_video_time: response_video_times,
         stimulus: trial.stimulus,
         pause_video_time,
         pause_duration,

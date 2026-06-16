@@ -215,6 +215,8 @@ describe("plugin-video-text-response", () => {
     expect(data.rt.length).toBe(1);
     expect(data.response_rt.length).toBe(1);
     expect(data.response_rt[0]).toBeGreaterThanOrEqual(0);
+    expect(data.response_video_time.length).toBe(1);
+    expect(typeof data.response_video_time[0]).toBe("number");
   });
 
   test("one_response_per_pause: false keeps the box open after submitting, allowing multiple responses in one pause", async () => {
