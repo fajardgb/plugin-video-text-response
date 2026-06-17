@@ -64,6 +64,10 @@ function getVideo(displayElement: HTMLElement) {
   );
 }
 
+function getDoneButton(displayElement: HTMLElement) {
+  return displayElement.querySelector<HTMLButtonElement>("#jspsych-video-text-response-done");
+}
+
 async function typeInto(textbox: HTMLTextAreaElement, value: string) {
   textbox.value = value;
   await dispatchEvent(new Event("input", { bubbles: true }), textbox);
@@ -435,6 +439,66 @@ describe("plugin-video-text-response", () => {
     await dispatchEvent(new Event("timeupdate"), video);
 
     await expectFinished();
+  });
+
+  test("response_ends_trial: true ends the trial immediately on submission", async () => {
+    const { displayElement, getData, expectFinished } = await startTimeline([
+      {
+        type: jsPsychVideoTextResponse,
+        stimulus: ["video.mp4"],
+        response_allowed_while_playing: true,
+        response_ends_trial: true,
+      },
+    ]);
+
+    const textbox = getTextbox(displayElement);
+    const submitButton = getSubmitButton(displayElement);
+
+    await typeInto(textbox, "done");
+    await clickTarget(submitButton);
+
+    await expectFinished();
+    const data = getData().values()[0];
+    expect(data.response).toEqual(["done"]);
+  });
+
+  test("show_done_button renders a button that ends the trial when clicked", async () => {
+    const { displayElement, expectRunning, expectFinished } = await startTimeline([
+      {
+        type: jsPsychVideoTextResponse,
+        stimulus: ["video.mp4"],
+        show_done_button: true,
+      },
+    ]);
+
+    await expectRunning();
+    const doneButton = getDoneButton(displayElement);
+    expect(doneButton).not.toBeNull();
+
+    await clickTarget(doneButton);
+    await expectFinished();
+  });
+
+  test("done_button_label sets the button text", async () => {
+    const { displayElement } = await startTimeline([
+      {
+        type: jsPsychVideoTextResponse,
+        stimulus: ["video.mp4"],
+        show_done_button: true,
+        done_button_label: "Finish",
+      },
+    ]);
+    expect(getDoneButton(displayElement).textContent).toBe("Finish");
+  });
+
+  test("no done button is rendered by default", async () => {
+    const { displayElement } = await startTimeline([
+      {
+        type: jsPsychVideoTextResponse,
+        stimulus: ["video.mp4"],
+      },
+    ]);
+    expect(getDoneButton(displayElement)).toBeNull();
   });
 
   test("required stimulus parameter throws if missing", async () => {

@@ -156,7 +156,7 @@ const info = <const>{
     /** If true, the trial ends as soon as the participant submits a response. */
     response_ends_trial: {
       type: ParameterType.BOOL,
-      default: false,
+      default: true,
     },
     /** If true, a button is shown below the response box that ends the trial when clicked. */
     show_done_button: {
@@ -181,7 +181,7 @@ const info = <const>{
       array: true,
     },
     /** Time, in milliseconds, from when each response window became enabled (i.e. the relevant pause) until that response was submitted. Isolates "thinking/typing" time from time spent watching the video. Same length and order as `response`. */
-    response_rt: {
+    response_duration: {
       type: ParameterType.INT,
       array: true,
     },
@@ -290,7 +290,7 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
     const rts: number[] = [];
     // null if a response is somehow submitted with no open window (shouldn't normally happen,
     // since the submit button is disabled whenever response_window_start is null)
-    const response_rts: (number | null)[] = [];
+    const response_durations: (number | null)[] = [];
     const response_video_times: number[] = [];
     // performance.now() timestamp marking when the currently-open response window started
     // (null when the response box is closed/disabled).
@@ -539,7 +539,7 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
       const now = performance.now();
       responses.push(text);
       rts.push(Math.round(now - trial_start_time));
-      response_rts.push(
+      response_durations.push(
         response_window_start !== null ? Math.round(now - response_window_start) : null
       );
       response_video_times.push(videoElement.currentTime);
@@ -666,7 +666,7 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
       const trial_data = {
         response: responses,
         rt: rts,
-        response_rt: response_rts,
+        response_duration: response_durations,
         response_video_time: response_video_times,
         stimulus: trial.stimulus,
         pause_video_time,
