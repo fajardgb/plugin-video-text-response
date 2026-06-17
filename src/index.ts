@@ -153,6 +153,21 @@ const info = <const>{
       type: ParameterType.BOOL,
       default: true,
     },
+    /** If true, the trial ends as soon as the participant submits a response. */
+    response_ends_trial: {
+      type: ParameterType.BOOL,
+      default: false,
+    },
+    /** If true, a button is shown below the response box that ends the trial when clicked. */
+    show_done_button: {
+      type: ParameterType.BOOL,
+      default: false,
+    },
+    /** Label for the done button. Only applies when `show_done_button` is true. */
+    done_button_label: {
+      type: ParameterType.STRING,
+      default: "Continue",
+    },
   },
   data: {
     /** The text entered by the participant for each response window, in submission order. One entry per pause-respond cycle. */
@@ -442,6 +457,15 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
     submitButton.disabled = true;
     responseWrapper.appendChild(submitButton);
 
+    let doneButton: HTMLButtonElement | null = null;
+    if (trial.show_done_button) {
+      doneButton = document.createElement("button");
+      doneButton.id = "jspsych-video-text-response-done";
+      doneButton.className = "jspsych-btn";
+      doneButton.textContent = trial.done_button_label;
+      display_element.appendChild(doneButton);
+    }
+
     // strips disallowed character classes from a candidate textbox value
     const filter_value = (value: string): string => {
       let result = value;
@@ -520,6 +544,11 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
       );
       response_video_times.push(videoElement.currentTime);
       textbox.value = "";
+
+      if (trial.response_ends_trial) {
+        end_trial();
+        return;
+      }
 
       if (historyList) {
         const item = document.createElement("div");
@@ -648,6 +677,10 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
       // move on to the next trial
       this.jsPsych.finishTrial(trial_data);
     };
+
+    if (doneButton) {
+      doneButton.addEventListener("click", end_trial);
+    }
 
     // end trial if time limit is set
     if (trial.trial_duration !== null) {

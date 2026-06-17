@@ -38,6 +38,9 @@ In addition to the [parameters available in all plugins](https://www.jspsych.org
 | show_response_history            | BOOL        | false          | If true, previously submitted responses are displayed on screen (as a running list) during the trial.                                                       |
 | response_history_limit           | INT         | null           | Maximum number of past responses shown in the history list at one time. When the limit is reached, the oldest entry is removed as each new one is added. Only applies when `show_response_history` is true. If null, all responses are shown. |
 | one_response_per_pause           | BOOL        | true           | Only applies when `response_allowed_while_playing` is false. If true (default), submitting a response closes the response box until the next pause. If false, the box clears and stays open after each submission, allowing multiple responses within the same pause. |
+| response_ends_trial              | BOOL        | false          | If true, the trial ends as soon as the participant submits a response.                                                                                       |
+| show_done_button                 | BOOL        | false          | If true, a button is shown below the response box that ends the trial when clicked.                                                                          |
+| done_button_label                | STRING      | "Continue"     | Label for the done button. Only applies when `show_done_button` is true.                                                                                     |
 
 ## Data Generated
 
