@@ -579,7 +579,7 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
     // (button click, spacebar, or the video reaching its `stop` time all end up calling
     // videoElement.pause()/play(), so listening here is the single source of truth)
     videoElement.addEventListener("pause", () => {
-      if (!setup_complete || trial_ended) {
+      if (!setup_complete || trial_ended || videoElement.ended) {
         return;
       }
       pause_start_time = performance.now();

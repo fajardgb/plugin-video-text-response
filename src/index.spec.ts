@@ -37,9 +37,10 @@ function simulateAutoplay(videoElement: HTMLVideoElement) {
   videoElement.play();
 }
 
-/** Simulates the video reaching its natural end: pause() (matching the real "ended implies
- * paused" ordering) followed by the "ended" event, which jsdom never fires on its own. */
+/** Simulates the video reaching its natural end: sets `ended` to true (matching what a real
+ * browser does before firing "pause"), then pause() and the "ended" event. */
 function endVideo(videoElement: HTMLVideoElement) {
+  Object.defineProperty(videoElement, "ended", { value: true, configurable: true });
   videoElement.pause();
   videoElement.dispatchEvent(new Event("ended"));
 }
@@ -188,12 +189,13 @@ describe("plugin-video-text-response", () => {
     expect(video.paused).not.toBe(false);
   });
 
-  test("submitting a response while paused records response/rt/response_rt and disables the box", async () => {
+  test("submitting a response while paused records response/rt/response_duration and disables the box", async () => {
     const { displayElement, getData, expectFinished } = await startTimeline([
       {
         type: jsPsychVideoTextResponse,
         stimulus: ["video.mp4"],
         trial_ends_after_video: true,
+        response_ends_trial: false,
       },
     ]);
 
@@ -217,8 +219,8 @@ describe("plugin-video-text-response", () => {
     const data = getData().values()[0];
     expect(data.response).toEqual(["hello world"]);
     expect(data.rt.length).toBe(1);
-    expect(data.response_rt.length).toBe(1);
-    expect(data.response_rt[0]).toBeGreaterThanOrEqual(0);
+    expect(data.response_duration.length).toBe(1);
+    expect(data.response_duration[0]).toBeGreaterThanOrEqual(0);
     expect(data.response_video_time.length).toBe(1);
     expect(typeof data.response_video_time[0]).toBe("number");
   });
@@ -230,6 +232,7 @@ describe("plugin-video-text-response", () => {
         stimulus: ["video.mp4"],
         one_response_per_pause: false,
         trial_ends_after_video: true,
+        response_ends_trial: false,
       },
     ]);
 
@@ -258,7 +261,7 @@ describe("plugin-video-text-response", () => {
     // two responses recorded from a single pause
     expect(data.response).toEqual(["first", "second"]);
     expect(data.rt.length).toBe(2);
-    expect(data.response_rt.length).toBe(2);
+    expect(data.response_duration.length).toBe(2);
     // only one pause event happened
     expect(data.pause_video_time.length).toBe(1);
   });
@@ -292,6 +295,7 @@ describe("plugin-video-text-response", () => {
         type: jsPsychVideoTextResponse,
         stimulus: ["video.mp4"],
         trial_ends_after_video: true,
+        response_ends_trial: false,
       },
     ]);
 
@@ -319,7 +323,7 @@ describe("plugin-video-text-response", () => {
     const data = getData().values()[0];
     expect(data.response).toEqual(["first", "second"]);
     expect(data.rt.length).toBe(2);
-    expect(data.response_rt.length).toBe(2);
+    expect(data.response_duration.length).toBe(2);
     expect(data.pause_video_time.length).toBe(2);
     expect(data.pause_duration.length).toBe(2);
   });
@@ -350,6 +354,7 @@ describe("plugin-video-text-response", () => {
         stimulus: ["video.mp4"],
         response_allowed_while_playing: true,
         show_response_history: true,
+        response_ends_trial: false,
       },
     ]);
 
@@ -370,6 +375,7 @@ describe("plugin-video-text-response", () => {
         response_allowed_while_playing: true,
         show_response_history: true,
         response_history_limit: 2,
+        response_ends_trial: false,
       },
     ]);
 
@@ -392,6 +398,24 @@ describe("plugin-video-text-response", () => {
     expect(historyList.innerHTML).not.toContain("first");
     expect(historyList.innerHTML).toContain("second");
     expect(historyList.innerHTML).toContain("third");
+  });
+
+  test("the natural end of the video does not create a pause entry", async () => {
+    const { displayElement, getData, expectFinished } = await startTimeline([
+      {
+        type: jsPsychVideoTextResponse,
+        stimulus: ["video.mp4"],
+        trial_ends_after_video: true,
+      },
+    ]);
+
+    simulateAutoplay(getVideo(displayElement));
+    endVideo(getVideo(displayElement));
+    await expectFinished();
+
+    const data = getData().values()[0];
+    expect(data.pause_video_time).toEqual([]);
+    expect(data.pause_duration).toEqual([]);
   });
 
   test("trial_ends_after_video ends the trial when the video ends", async () => {

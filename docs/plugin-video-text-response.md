@@ -1,12 +1,20 @@
 # plugin-video-text-response
 
-Plays a video and collects one or more free-text responses from the participant. By default,
-the response box and submit button are only enabled while the video is paused (via a custom
-Pause/Resume button and/or a configurable key, default: spacebar) — pausing opens a "response
-window," submitting closes it again until the next pause, and this can repeat as many times as
-the participant likes during a single trial. Native HTML5 video controls (which include a seek
-bar) are intentionally never used, so the participant can pause/resume but cannot scrub or
-change the playback position.
+Plays a video and collects free-text responses from the participant. By default, the response
+box and submit button are only enabled while the video is paused (via a custom Pause/Resume
+button and/or a configurable key, default: Space bar), and submitting a response ends the trial
+immediately. Setting `response_allowed_while_playing: true` keeps the box open continuously
+regardless of play/pause state, and setting `response_ends_trial: false` allows multiple
+responses to be collected across pauses. Native HTML5 video controls (which include a seek bar)
+are intentionally never used, so the participant can pause/resume but cannot scrub or change the
+playback position.
+
+The trial can end in four ways: the participant submits a response (if `response_ends_trial` is
+true), the participant clicks the done button (if `show_done_button` is true), the video
+finishes playing (if `trial_ends_after_video` is true), or a time limit elapses
+(`trial_duration`). An optional response history list can display previously submitted responses
+on screen during the trial, and character filtering options can restrict input to letters,
+numbers, or symbols.
 
 ## Parameters
 
