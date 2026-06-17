@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>jsPsychVideoTextResponse Example</title>
     <script src="https://unpkg.com/jspsych"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response"></script>
     <!-- Once this plugin package is published, you can load it from a CDN instead:
 <script src="https://unpkg.com/plugin-video-text-response"></script> -->
     <script src="../dist/index.browser.min.js"></script>
@@ -11,12 +12,79 @@
 
   <body></body>
   <script>
-    const jsPsych = initJsPsych();
+    const jsPsych = initJsPsych({
+      on_finish: function () {
+        jsPsych.data.get().localSave("csv", "video-text-response-data.csv");
+        jsPsych.data.displayData();
+      },
+    });
 
-    const trial = {
-      type: jsPsychVideoTextResponse
+    // Replace with your own video file path(s). Multiple formats can be listed for
+    // cross-browser support (the plugin uses the first one the browser can play).
+    const VIDEO = ["video/sample_video.mp4"];
+
+    const instructions = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: `
+        <p>In the next few trials, you'll watch a short video. You can pause it at any time
+        using the Pause button (or the spacebar) to type a response, then resume.</p>
+      `,
+      choices: ["Continue"],
     };
 
-    jsPsych.run([trial])
+    // 1. Default behavior: response box is only enabled while the video is paused. You can
+    // pause/respond as many times as you like; the trial ends when the video finishes.
+    const default_trial = {
+      type: jsPsychVideoTextResponse,
+      stimulus: VIDEO,
+      prompt:
+        "<p>Pause the video (button or spacebar) whenever you want to respond.</p>",
+      trial_ends_after_video: true,
+    };
+
+    // 2. Continuous mode: the response box is enabled the whole time, regardless of whether
+    // the video is playing or paused. Useful for free-form running commentary.
+    const continuous_trial = {
+      type: jsPsychVideoTextResponse,
+      stimulus: VIDEO,
+      prompt:
+        "<p>You can type and submit a response at any time, even while the video plays.</p>",
+      response_allowed_while_playing: true,
+      trial_ends_after_video: true,
+    };
+
+    // 3. Requiring a response, restricting input to letters only, and showing the response
+    // history on screen.
+    const restricted_trial = {
+      type: jsPsychVideoTextResponse,
+      stimulus: VIDEO,
+      prompt:
+        "<p>Your response must contain only letters, and can't be empty.</p>",
+      required: true,
+      allow_numbers: false,
+      allow_symbols: false,
+      show_response_history: true,
+      trial_ends_after_video: true,
+    };
+
+    // 4. Disabling the spacebar shortcut and requiring 2 seconds of viewing before the first
+    // response is allowed, with a hard time limit on the whole trial.
+    const delayed_trial = {
+      type: jsPsychVideoTextResponse,
+      stimulus: VIDEO,
+      prompt:
+        "<p>Pausing only works via the button; you must watch for 2s before responding.</p>",
+      pause_key: null,
+      enable_response_after: 2000,
+      trial_duration: 20000,
+    };
+
+    jsPsych.run([
+      instructions,
+      default_trial,
+      continuous_trial,
+      restricted_trial,
+      delayed_trial,
+    ]);
   </script>
 </html>

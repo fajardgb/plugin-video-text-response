@@ -2,11 +2,29 @@
 
 ## Overview
 
-Allow participants to pause a video and 
+Plays a video and collects one or more free-text responses from the participant. By default,
+the response box is only enabled while the video is paused (via a custom Pause/Resume button
+and/or the spacebar), so the participant can pause, type a response, resume, and repeat as many
+times as they like during a single trial. See the [documentation](docs/plugin-video-text-response.md)
+for the full parameter and data reference.
 
 ## Loading
 
-*Enter instructions for loading the plugin package here.*
+### Via NPM
+
+```
+npm install plugin-video-text-response
+```
+
+```js
+import VideoTextResponse from "plugin-video-text-response";
+```
+
+### Via CDN
+
+```html
+<script src="https://unpkg.com/plugin-video-text-response"></script>
+```
 
 ## Compatibility
 
@@ -14,7 +32,7 @@ Allow participants to pause a video and
 
 ## Documentation
 
-See [documentation](https://github.com/fajardgb/CVFP2022.git/tree/main/Downloads/plugin-video-text-response/README.md)
+See [documentation](docs/plugin-video-text-response.md)
 
 ## Author / Citation
 
