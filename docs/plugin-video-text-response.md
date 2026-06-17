@@ -5,9 +5,9 @@ box and submit button are only enabled while the video is paused (via a custom P
 button and/or a configurable key, default: Space bar), and submitting a response ends the trial
 immediately. Setting `response_allowed_while_playing: true` keeps the box open continuously
 regardless of play/pause state, and setting `response_ends_trial: false` allows multiple
-responses to be collected across pauses. Native HTML5 video controls (which include a seek bar)
-are intentionally never used, so the participant can pause/resume but cannot scrub or change the
-playback position.
+responses to be collected across pauses. By default, native HTML5 video controls are hidden so
+the participant can pause/resume but cannot scrub or change the playback position; set
+`controls: true` to show them.
 
 The trial can end in four ways: the participant submits a response (if `response_ends_trial` is
 true), the participant clicks the done button (if `show_done_button` is true), the video
@@ -96,6 +96,7 @@ var trial = {
   type: jsPsychVideoTextResponse,
   stimulus: ["video/sample_video.mp4"],
   prompt: "<p>Pause the video (button or spacebar) whenever you want to respond.</p>",
+  response_ends_trial: false,
   trial_ends_after_video: true,
 };
 ```
@@ -107,6 +108,7 @@ var trial = {
   type: jsPsychVideoTextResponse,
   stimulus: ["video/sample_video.mp4"],
   response_allowed_while_playing: true,
+  response_ends_trial: false,
   trial_ends_after_video: true,
 };
 ```
@@ -121,6 +123,7 @@ var trial = {
   allow_numbers: false,
   allow_symbols: false,
   show_response_history: true,
+  response_ends_trial: false,
   trial_ends_after_video: true,
 };
 ```
