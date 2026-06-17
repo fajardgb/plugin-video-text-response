@@ -26,6 +26,7 @@ In addition to the [parameters available in all plugins](https://www.jspsych.org
 | width                             | INT         | null           | The width of the video in pixels.                                                                                                                          |
 | height                            | INT         | null           | The height of the video in pixels.                                                                                                                          |
 | autoplay                         | BOOL        | true           | If true, the video begins playing as soon as it has loaded.                                                                                                  |
+| controls                         | BOOL        | false          | If true, the native HTML5 video controls (play/pause, seek bar, volume, etc.) are shown, allowing the participant to scrub the video.                        |
 | show_pause_button                | BOOL        | true           | If true, a custom Pause/Resume button is displayed below the video.                                                                                          |
 | pause_key                        | KEY         | `" "`          | A key that toggles pause/resume when pressed, in addition to (or instead of) `show_pause_button`. Set to `null` to disable keyboard pausing entirely.       |
 | start                             | FLOAT       | null           | Time, in seconds, to start the clip. If null, the video starts at the beginning.                                                                            |
@@ -49,6 +50,7 @@ In addition to the [parameters available in all plugins](https://www.jspsych.org
 | response_ends_trial              | BOOL        | true          | If true, the trial ends as soon as the participant submits a response.                                                                                       |
 | show_done_button                 | BOOL        | false          | If true, a button is shown below the response box that ends the trial when clicked.                                                                          |
 | done_button_label                | STRING      | "Continue"     | Label for the done button. Only applies when `show_done_button` is true.                                                                                     |
+| done_prompt                      | HTML_STRING | ""             | HTML content displayed below the done button (e.g. instructions for what happens next). Only applies when `show_done_button` is true.                        |
 
 ## Data Generated
 

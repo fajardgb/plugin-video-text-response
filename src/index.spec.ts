@@ -75,7 +75,7 @@ async function typeInto(textbox: HTMLTextAreaElement, value: string) {
 }
 
 describe("plugin-video-text-response", () => {
-  test("loads, renders the video, and never sets native controls", async () => {
+  test("loads, renders the video, and does not set native controls by default", async () => {
     const { expectRunning, displayElement } = await startTimeline([
       {
         type: jsPsychVideoTextResponse,
@@ -88,6 +88,18 @@ describe("plugin-video-text-response", () => {
     const video = getVideo(displayElement);
     expect(video).not.toBeNull();
     expect(video.controls).toBe(false);
+  });
+
+  test("controls: true enables native HTML5 video controls", async () => {
+    const { displayElement } = await startTimeline([
+      {
+        type: jsPsychVideoTextResponse,
+        stimulus: ["video.mp4"],
+        controls: true,
+      },
+    ]);
+
+    expect(getVideo(displayElement).controls).toBe(true);
   });
 
   test("response box starts disabled in gated mode (response_allowed_while_playing: false)", async () => {

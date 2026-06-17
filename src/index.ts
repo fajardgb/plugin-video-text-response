@@ -33,6 +33,13 @@ const info = <const>{
       type: ParameterType.BOOL,
       default: true,
     },
+    /** If true, the native HTML5 video controls (play/pause, seek bar, volume, etc.) are shown.
+     * This allows the participant to scrub the video. Defaults to false so that only the custom
+     * Pause/Resume button and/or keyboard shortcut are available. */
+    controls: {
+      type: ParameterType.BOOL,
+      default: false,
+    },
     /**
      * If true, a custom Pause/Resume button is displayed below the video. Native HTML5 video controls (which include
      * a seek bar) are intentionally never used, so the participant can pause/resume but cannot scrub or change the
@@ -167,6 +174,12 @@ const info = <const>{
     done_button_label: {
       type: ParameterType.STRING,
       default: "Continue",
+    },
+    /** HTML content displayed below the done button (e.g. instructions for what happens next).
+     * Only applies when `show_done_button` is true. */
+    done_prompt: {
+      type: ParameterType.HTML_STRING,
+      default: "",
     },
   },
   data: {
@@ -322,10 +335,7 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
       videoElement.height = trial.height;
     }
 
-    // Native controls are never used (they include a seek bar, which would let participants
-    // change the playback position). Pausing/resuming is handled entirely by our own button
-    // and/or key listener below.
-    videoElement.controls = false;
+    videoElement.controls = trial.controls;
 
     // if autoplay is true and the start time is specified, then the video will start automatically
     // via the play() method, rather than the autoplay attribute, to prevent showing the first frame
@@ -464,6 +474,9 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
       doneButton.className = "jspsych-btn";
       doneButton.textContent = trial.done_button_label;
       display_element.appendChild(doneButton);
+      if (trial.done_prompt !== "") {
+        display_element.insertAdjacentHTML("beforeend", trial.done_prompt);
+      }
     }
 
     // strips disallowed character classes from a candidate textbox value
