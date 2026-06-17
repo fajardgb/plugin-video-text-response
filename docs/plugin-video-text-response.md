@@ -31,11 +31,13 @@ In addition to the [parameters available in all plugins](https://www.jspsych.org
 | placeholder                      | STRING      | ""             | Placeholder text shown in the empty text response box.                                                                                                       |
 | rows                              | INT         | 1              | The number of visible text rows in the response box.                                                                                                          |
 | button_label                     | STRING      | "submit"       | Label displayed on the submit button.                                                                                                                        |
-| required                          | BOOL        | false          | If true, blocks submission of an empty or whitespace-only response.                                                                                          |
+| required                          | BOOL        | true          | If true, blocks submission of an empty or whitespace-only response.                                                                                          |
 | allow_numbers                    | BOOL        | true           | If false, number characters (0-9) are stripped from the response box as they're typed.                                                                      |
 | allow_letters                    | BOOL        | true           | If false, letter characters are stripped from the response box as they're typed.                                                                            |
 | allow_symbols                    | BOOL        | true           | If false, symbol/punctuation characters are stripped from the response box as they're typed.                                                                |
 | show_response_history            | BOOL        | false          | If true, previously submitted responses are displayed on screen (as a running list) during the trial.                                                       |
+| response_history_limit           | INT         | null           | Maximum number of past responses shown in the history list at one time. When the limit is reached, the oldest entry is removed as each new one is added. Only applies when `show_response_history` is true. If null, all responses are shown. |
+| one_response_per_pause           | BOOL        | true           | Only applies when `response_allowed_while_playing` is false. If true (default), submitting a response closes the response box until the next pause. If false, the box clears and stays open after each submission, allowing multiple responses within the same pause. |
 
 ## Data Generated
 

@@ -68,7 +68,7 @@ const info = <const>{
     /** If true, the trial ends automatically as soon as the video finishes playing. */
     trial_ends_after_video: {
       type: ParameterType.BOOL,
-      default: true,
+      default: false,
     },
     /** The maximum time, in milliseconds, to wait for a response before ending the trial. If null, there is no deadline. */
     trial_duration: {
