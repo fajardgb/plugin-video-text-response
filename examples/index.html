@@ -76,7 +76,7 @@
       type: jsPsychVideoTextResponse,
       stimulus: VIDEO,
       prompt:
-        "<p>Pausing only works via the button; you must watch for 2s before responding.</p>",
+        "<p>Pausing only works via the button; you must watch for 2s before responding (response ends trial).</p>",
       pause_key: null,
       enable_response_after: 2000,
       trial_duration: 20000,
@@ -87,11 +87,13 @@
     const done_button_trial = {
       type: jsPsychVideoTextResponse,
       stimulus: VIDEO,
-      prompt: "<p>Pause to respond as many times as you like, then click Done when finished.</p>",
+      prompt:
+        "<p>Pause to respond as many times as you like, then click Done when finished.</p>",
       response_ends_trial: false,
       show_done_button: true,
       done_button_label: "Done",
-      done_prompt: "<p><em>Click Done when you have finished all your responses.</em></p>",
+      done_prompt:
+        "<p><em>Click Done when you have finished all your responses.</em></p>",
     };
 
     // 6. Native video controls enabled: seek bar, volume, etc. are all visible.
@@ -109,7 +111,8 @@
     const multi_per_pause_trial = {
       type: jsPsychVideoTextResponse,
       stimulus: VIDEO,
-      prompt: "<p>Pause the video and submit as many responses as you like before resuming.</p>",
+      prompt:
+        "<p>Pause the video and submit as many responses as you like before resuming.</p>",
       one_response_per_pause: false,
       response_ends_trial: false,
       show_response_history: true,
