@@ -1,6 +1,9 @@
-# plugin-video-text-response
+![jspsych logo](http://www.jspsych.org/7.0/img/jspsych-logo.jpg)
 
-Plays a video and collects one or more free-text responses from the participant. By default the response box is enabled only while the video is paused, so the participant can pause, type a response, resume, and repeat as many times as they like within a single trial. The video's playback position is recorded for every pause and every response, which makes the plugin well suited to event-segmentation, continuous-rating, and "pause and comment" paradigms, as well as simple "watch then answer" tasks.
+jsPsych is a JavaScript framework for creating behavioral experiments that run in a web browser.
+
+## Plugin Description
+The video-text-response plugin plays a video and collects one or more free-text responses from the participant. By default the response box is enabled only while the video is paused, so the participant can pause, type a response, resume, and repeat as many times as they like within a single trial. The video's playback position is recorded for every pause and every response, which makes the plugin well suited to event-segmentation, continuous-rating, and "pause and comment" paradigms, as well as simple "watch then answer" tasks.
 
 Native HTML5 video controls are hidden by default, so the participant can pause and resume but cannot scrub or skip ahead. Pausing is handled by a custom Pause/Resume button and/or a configurable key (Space bar by default).
 
