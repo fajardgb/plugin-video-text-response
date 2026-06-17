@@ -40,6 +40,7 @@
       prompt:
         "<p>Pause the video (button or spacebar) whenever you want to respond.</p>",
       trial_ends_after_video: true,
+      response_ends_trial: false,
     };
 
     // 2. Continuous mode: the response box is enabled the whole time, regardless of whether
@@ -82,9 +83,9 @@
     jsPsych.run([
       instructions,
       default_trial,
-      continuous_trial,
-      restricted_trial,
-      delayed_trial,
+      // continuous_trial,
+      // restricted_trial,
+      // delayed_trial,
     ]);
   </script>
 </html>

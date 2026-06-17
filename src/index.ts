@@ -33,6 +33,13 @@ const info = <const>{
       type: ParameterType.BOOL,
       default: true,
     },
+    /** If true, the native HTML5 video controls (play/pause, seek bar, volume, etc.) are shown.
+     * This allows the participant to scrub the video. Defaults to false so that only the custom
+     * Pause/Resume button and/or keyboard shortcut are available. */
+    controls: {
+      type: ParameterType.BOOL,
+      default: false,
+    },
     /**
      * If true, a custom Pause/Resume button is displayed below the video. Native HTML5 video controls (which include
      * a seek bar) are intentionally never used, so the participant can pause/resume but cannot scrub or change the
@@ -68,7 +75,7 @@ const info = <const>{
     /** If true, the trial ends automatically as soon as the video finishes playing. */
     trial_ends_after_video: {
       type: ParameterType.BOOL,
-      default: true,
+      default: false,
     },
     /** The maximum time, in milliseconds, to wait for a response before ending the trial. If null, there is no deadline. */
     trial_duration: {
@@ -153,6 +160,27 @@ const info = <const>{
       type: ParameterType.BOOL,
       default: true,
     },
+    /** If true, the trial ends as soon as the participant submits a response. */
+    response_ends_trial: {
+      type: ParameterType.BOOL,
+      default: true,
+    },
+    /** If true, a button is shown below the response box that ends the trial when clicked. */
+    show_done_button: {
+      type: ParameterType.BOOL,
+      default: false,
+    },
+    /** Label for the done button. Only applies when `show_done_button` is true. */
+    done_button_label: {
+      type: ParameterType.STRING,
+      default: "Continue",
+    },
+    /** HTML content displayed below the done button (e.g. instructions for what happens next).
+     * Only applies when `show_done_button` is true. */
+    done_prompt: {
+      type: ParameterType.HTML_STRING,
+      default: "",
+    },
   },
   data: {
     /** The text entered by the participant for each response window, in submission order. One entry per pause-respond cycle. */
@@ -166,7 +194,7 @@ const info = <const>{
       array: true,
     },
     /** Time, in milliseconds, from when each response window became enabled (i.e. the relevant pause) until that response was submitted. Isolates "thinking/typing" time from time spent watching the video. Same length and order as `response`. */
-    response_rt: {
+    response_duration: {
       type: ParameterType.INT,
       array: true,
     },
@@ -275,7 +303,7 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
     const rts: number[] = [];
     // null if a response is somehow submitted with no open window (shouldn't normally happen,
     // since the submit button is disabled whenever response_window_start is null)
-    const response_rts: (number | null)[] = [];
+    const response_durations: (number | null)[] = [];
     const response_video_times: number[] = [];
     // performance.now() timestamp marking when the currently-open response window started
     // (null when the response box is closed/disabled).
@@ -307,10 +335,7 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
       videoElement.height = trial.height;
     }
 
-    // Native controls are never used (they include a seek bar, which would let participants
-    // change the playback position). Pausing/resuming is handled entirely by our own button
-    // and/or key listener below.
-    videoElement.controls = false;
+    videoElement.controls = trial.controls;
 
     // if autoplay is true and the start time is specified, then the video will start automatically
     // via the play() method, rather than the autoplay attribute, to prevent showing the first frame
@@ -442,6 +467,18 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
     submitButton.disabled = true;
     responseWrapper.appendChild(submitButton);
 
+    let doneButton: HTMLButtonElement | null = null;
+    if (trial.show_done_button) {
+      doneButton = document.createElement("button");
+      doneButton.id = "jspsych-video-text-response-done";
+      doneButton.className = "jspsych-btn";
+      doneButton.textContent = trial.done_button_label;
+      display_element.appendChild(doneButton);
+      if (trial.done_prompt !== "") {
+        display_element.insertAdjacentHTML("beforeend", trial.done_prompt);
+      }
+    }
+
     // strips disallowed character classes from a candidate textbox value
     const filter_value = (value: string): string => {
       let result = value;
@@ -515,11 +552,16 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
       const now = performance.now();
       responses.push(text);
       rts.push(Math.round(now - trial_start_time));
-      response_rts.push(
+      response_durations.push(
         response_window_start !== null ? Math.round(now - response_window_start) : null
       );
       response_video_times.push(videoElement.currentTime);
       textbox.value = "";
+
+      if (trial.response_ends_trial) {
+        end_trial();
+        return;
+      }
 
       if (historyList) {
         const item = document.createElement("div");
@@ -550,7 +592,7 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
     // (button click, spacebar, or the video reaching its `stop` time all end up calling
     // videoElement.pause()/play(), so listening here is the single source of truth)
     videoElement.addEventListener("pause", () => {
-      if (!setup_complete || trial_ended) {
+      if (!setup_complete || trial_ended || videoElement.ended) {
         return;
       }
       pause_start_time = performance.now();
@@ -637,7 +679,7 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
       const trial_data = {
         response: responses,
         rt: rts,
-        response_rt: response_rts,
+        response_duration: response_durations,
         response_video_time: response_video_times,
         stimulus: trial.stimulus,
         pause_video_time,
@@ -648,6 +690,10 @@ class VideoTextResponsePlugin implements JsPsychPlugin<Info> {
       // move on to the next trial
       this.jsPsych.finishTrial(trial_data);
     };
+
+    if (doneButton) {
+      doneButton.addEventListener("click", end_trial);
+    }
 
     // end trial if time limit is set
     if (trial.trial_duration !== null) {
